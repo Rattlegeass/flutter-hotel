@@ -13,7 +13,7 @@ class Carousel extends StatelessWidget {
         height: 200.0,
         enlargeCenterPage: true,
         autoPlay: true,
-        aspectRatio: 2.0,
+        aspectRatio: 16/9,
         onPageChanged: (index, reason) {},
       ),
       items: image.map((images) {

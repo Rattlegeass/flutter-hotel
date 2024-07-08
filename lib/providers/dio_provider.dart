@@ -2,11 +2,12 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tester/utils/config.dart';
 
 class DioProvider {
   static BaseOptions options = new BaseOptions(
     baseUrl:
-        "http://10.0.2.2:8000/api", // Sesuaikan dengan URL API Laravel Anda
+        Config.api + '/api', // Sesuaikan dengan URL API Laravel Anda
     connectTimeout: 5000,
     receiveTimeout: 5000,
   );
@@ -67,7 +68,7 @@ class DioProvider {
 
   Future<List<String>> banner() async {
     try {
-      Response response = await dio.get('/master/banner_flutter');
+      Response response = await dio.get('/master/banner');
       if (response.data != '') {
         List<dynamic> data = response.data['data'];
         return data.map((item) => item['image'] as String).toList();

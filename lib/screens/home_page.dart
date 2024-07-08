@@ -8,6 +8,7 @@ import 'package:tester/components/history_card.dart';
 import 'package:tester/components/hotel_card.dart';
 import 'package:tester/providers/dio_provider.dart';
 import 'package:tester/utils/config.dart';
+import 'package:dio/dio.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -51,9 +52,12 @@ class _HomePageState extends State<HomePage> {
       } else {
         throw Exception('Empty hotel list');
       }
+    } on DioError catch (dioError) {
+      print('Error loading hotel data: ${dioError.message}');
+      // Handle DioError specifically
     } catch (error) {
       print('Error loading hotel data: $error');
-      // Handle error state accordingly
+      // Handle other errors
     }
   }
 
