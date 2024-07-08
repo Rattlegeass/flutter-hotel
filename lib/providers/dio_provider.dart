@@ -6,10 +6,9 @@ import 'package:tester/utils/config.dart';
 
 class DioProvider {
   static BaseOptions options = new BaseOptions(
-    baseUrl:
-        Config.api + '/api', // Sesuaikan dengan URL API Laravel Anda
-    connectTimeout: 5000,
-    receiveTimeout: 5000,
+    baseUrl: Config.api + 'api', // Sesuaikan dengan URL API Laravel Anda
+    connectTimeout: 10000,
+    receiveTimeout: 10000,
   );
 
   Dio dio = new Dio(options);
@@ -71,7 +70,9 @@ class DioProvider {
       Response response = await dio.get('/master/banner');
       if (response.data != '') {
         List<dynamic> data = response.data['data'];
-        return data.map((item) => item['image'] as String).toList();
+        return data.map<String>((item) {
+          return Config.api + 'storage/' + item['image'];
+        }).toList();
       } else {
         throw Exception('Failed to load banners');
       }
@@ -91,4 +92,18 @@ class DioProvider {
       return error;
     }
   }
+
+Future<dynamic> review(String id) async {
+  try{
+    Response response = await dio.get('/master/review/show_rating_flutter/$id');
+
+    if(response.data != ''){
+      return response.data['data'];
+    }
+  } catch(error){
+      return error;
+    }
 }
+
+}
+

@@ -11,7 +11,7 @@ class HotelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Config().init(context);
-    const String baseUrl = Config.api + '/storage/';
+    const String baseUrl = Config.api + 'storage/';
 
     List<String> imageUrls = data['hotel_image'].map<String>((imageData) {
       return baseUrl + imageData['image'];
@@ -42,7 +42,7 @@ class HotelCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
                         "${data['name']}",
@@ -54,6 +54,11 @@ class HotelCard extends StatelessWidget {
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.normal),
                       ),
+                      // Text(
+                      //   "${data['description']}",
+                      //   style: const TextStyle(
+                      //       fontSize: 14, fontWeight: FontWeight.normal),
+                      // )
                     ],
                   ),
                 ),
@@ -62,7 +67,7 @@ class HotelCard extends StatelessWidget {
           ),
         ),
         onTap: () {
-          Navigator.of(context).pushNamed(route);
+          Navigator.of(context).pushNamed(route, arguments: data);
         },
       ),
     );

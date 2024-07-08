@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tester/components/banner_card.dart';
-import 'package:tester/components/history_card.dart';
 import 'package:tester/components/hotel_card.dart';
 import 'package:tester/providers/dio_provider.dart';
 import 'package:tester/utils/config.dart';
@@ -142,12 +141,12 @@ class _HomePageState extends State<HomePage> {
                         )),
                     Config.spaceSmall,
                     const Text(
-                      'Hotel Today',
+                      'Promotion Today',
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     Config.spaceSmall,
-                    // const BannerCard(),
+                    const BannerCard(),
                     Config.spaceSmall,
                     const Text(
                       'Top Hotel',

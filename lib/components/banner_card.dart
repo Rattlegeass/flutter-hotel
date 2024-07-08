@@ -42,7 +42,7 @@ class _BannerCardState extends State<BannerCard> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Config.primaryColor, // Adjust color as per your requirement
+        color: Config.primaryColor,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Material(
@@ -50,6 +50,7 @@ class _BannerCardState extends State<BannerCard> {
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               if (isLoading)
                 CircularProgressIndicator()
@@ -65,9 +66,16 @@ class _BannerCardState extends State<BannerCard> {
                   items: bannerImages.map((image) {
                     return Builder(
                       builder: (BuildContext context) {
-                        return Image.network(
-                          image,
-                          fit: BoxFit.cover,
+                        return Container(
+                          width: MediaQuery.of(context).size.width,
+                          margin: EdgeInsets.symmetric(horizontal: 5.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            image: DecorationImage(
+                              image: NetworkImage(image),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         );
                       },
                     );
