@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tester/components/button.dart';
+import 'package:tester/components/carousel.dart';
 import 'package:tester/components/custom_appbar.dart';
+import 'package:tester/components/review_card.dart';
 import 'package:tester/utils/config.dart';
 
 class HotelDetail extends StatefulWidget {
@@ -13,6 +15,24 @@ class HotelDetail extends StatefulWidget {
 
 class _HotelDetailState extends State<HotelDetail> {
   bool isFav = false;
+  bool isLoadingReviews = true;
+  String? reviewErrorMessage;
+  late Map<String, dynamic> hotel;
+  List<dynamic> review = [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context) != null) {
+      hotel =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+
+      if (hotel.containsKey('review') && hotel['review'] is List) {
+        review = hotel['review'];
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,36 +54,97 @@ class _HotelDetailState extends State<HotelDetail> {
         ],
       ),
       body: SafeArea(
-          child: Column(
-        children: <Widget>[
-          const AboutHotel(),
-          const HotelFacility(),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Button(
-                width: double.infinity,
-                title: 'Book',
-                onPressed: () {
-                  Navigator.of(context).pushNamed('booking_page');
-                },
-                disable: false),
-          )
-        ],
-      )),
+        child: SingleChildScrollView(
+          child: Card(
+            child: Column(
+              children: <Widget>[
+                Card(
+                    color: Colors.white,
+                    child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Column(
+                          children: [
+                            HotelInfo(hotel: hotel),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10.0),
+                              child: Card(
+                                  elevation: 5,
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 25),
+                                  child: AboutHotel(hotel: hotel)),
+                            ),
+                            Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: Card(
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 20),
+                                elevation: 5,
+                                color: Colors.grey[200],
+                                child: Column(
+                                  children: [
+                                    Config.spaceSmall,
+                                    Text(
+                                      "Review from user in ${hotel['name']}",
+                                      style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    if (review.isNotEmpty)
+                                      Column(
+                                        children: List.generate(review.length,
+                                            (index) {
+                                          return ReviewCard(
+                                              data: review[index]);
+                                        }),
+                                      )
+                                    else
+                                      const Text("No Review Found"),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ))),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Button(
+                    width: double.infinity,
+                    title: 'Book',
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('booking_page');
+                    },
+                    disable: false,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
 
-class AboutHotel extends StatelessWidget {
-  const AboutHotel({super.key});
+class HotelInfo extends StatelessWidget {
+  const HotelInfo({super.key, required this.hotel});
+
+  final Map<String, dynamic> hotel;
 
   @override
   Widget build(BuildContext context) {
     Config().init(context);
+
+    const String baseUrl = Config.api + 'storage/';
+
+    List<String> imageUrls = hotel['hotel_image'].map<String>((imageData) {
+      return baseUrl + imageData['image'];
+    }).toList();
     return Container(
       width: double.infinity,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           const SizedBox(
             height: 15,
@@ -73,128 +154,137 @@ class AboutHotel extends StatelessWidget {
             child: SizedBox(
               height: 150,
               width: double.infinity,
-              child: Image.asset('assets/hotel1.jpg'),
+              child: Carousel(image: imageUrls),
             ),
           ),
           Config.spaceMedium,
-          const Text(
-            'Hotel Antario',
-            style: TextStyle(
-                color: Colors.black,
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold),
-          ),
-          Config.spaceSmall,
-          SizedBox(
-            width: Config.widthSize * 0.75,
-            child: const Text(
-              'Jalan Kebangsaan No.769, 7099',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-              softWrap: true,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "${hotel['name']}",
+                  style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 5),
+                SizedBox(
+                  child: Text(
+                    "${hotel['street']}",
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                    softWrap: true,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                SizedBox(
+                  child: Text(
+                    "${hotel['city']['nm_city']}",
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w400),
+                    textAlign: TextAlign.center,
+                    softWrap: true,
+                  ),
+                ),
+              ],
             ),
-          ),
-          Config.spaceSmall,
-          SizedBox(
-            width: Config.widthSize * 0.75,
-            child: const Text(
-              'Kota Bandung',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
-              textAlign: TextAlign.center,
-              softWrap: true,
-            ),
-          ),
+          )
         ],
       ),
     );
   }
 }
 
-class HotelFacility extends StatelessWidget {
-  const HotelFacility({super.key});
+class AboutHotel extends StatelessWidget {
+  const AboutHotel({super.key, required this.hotel});
+
+  final Map<String, dynamic> hotel;
 
   @override
   Widget build(BuildContext context) {
     Config().init(context);
     return Container(
-        padding: const EdgeInsets.all(20),
-        margin: const EdgeInsets.only(bottom: 30),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Config.spaceSmall,
-            const HotelInfo(),
-            Config.spaceMedium,
-            const Text(
-              'About Hotel',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-            ),
-            Config.spaceSmall,
-            const Text(
-              'Sebuah Hotel yang tidak berani menjanjikan sebuah kenyamanan kepada para pengunjung',
-              style: TextStyle(fontWeight: FontWeight.w500, height: 1.5),
-              softWrap: true,
-              textAlign: TextAlign.justify,
-            )
-          ],
-        ));
-  }
-}
-
-class HotelInfo extends StatelessWidget {
-  const HotelInfo({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    Config().init(context);
-    return const Row(
-      children: [
-        InfoCard(label: 'Guest', value: '37'),
-        SizedBox(
-          width: 10,
-        ),
-        InfoCard(label: 'Room', value: '28'),
-        SizedBox(
-          width: 10,
-        ),
-        InfoCard(label: 'Floor', value: '4'),
-        SizedBox(
-          width: 10,
-        ),
-        InfoCard(label: 'Rating', value: '4.5'),
-      ],
-    );
-  }
-}
-
-class InfoCard extends StatelessWidget {
-  const InfoCard({super.key, required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-        child: Container(
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15), color: Config.primaryColor),
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      margin: const EdgeInsets.only(bottom: 20),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Config.spaceSmall,
           Text(
-            label,
-            style: const TextStyle(
-                color: Colors.black, fontSize: 14, fontWeight: FontWeight.w600),
+            "About ${hotel['name']}",
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
           ),
-          const SizedBox(height: 10),
+          Config.spaceSmall,
           Text(
-            value,
-            style: const TextStyle(
-                color: Colors.white, fontSize: 15, fontWeight: FontWeight.w800),
+            "${hotel['description']}",
+            style: const TextStyle(fontWeight: FontWeight.w500, height: 1.5),
+            softWrap: true,
+            textAlign: TextAlign.justify,
           ),
+          Config.spaceSmall,
+          const Text(
+            "Check In / Check Out Time",
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+          ),
+          Config.spaceSmall,
+          Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        "Check In : ",
+                        style:
+                            TextStyle(fontWeight: FontWeight.w500, height: 1.5),
+                        softWrap: true,
+                        textAlign: TextAlign.justify,
+                      ),
+                      const SizedBox(
+                        width: 8,
+                      ),
+                      Text(
+                        "${hotel['check_in']}",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w500, height: 1.5),
+                        softWrap: true,
+                        textAlign: TextAlign.justify,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Text(
+                        "Check Out :",
+                        style:
+                            TextStyle(fontWeight: FontWeight.w500, height: 1.5),
+                        softWrap: true,
+                        textAlign: TextAlign.justify,
+                      ),
+                      const SizedBox(
+                        width: 8,
+                      ),
+                      Text(
+                        "${hotel['check_out']}",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w500, height: 1.5),
+                        softWrap: true,
+                        textAlign: TextAlign.justify,
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ],
+          ),
+          Config.spaceSmall,
         ],
       ),
-    ));
+    );
   }
 }

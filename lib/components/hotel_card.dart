@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tester/components/carousel.dart';
+// import 'package:tester/components/carousel.dart';
 import 'package:tester/utils/config.dart';
 
 class HotelCard extends StatelessWidget {
@@ -13,9 +13,9 @@ class HotelCard extends StatelessWidget {
     Config().init(context);
     const String baseUrl = Config.api + 'storage/';
 
-    List<String> imageUrls = data['hotel_image'].map<String>((imageData) {
-      return baseUrl + imageData['image'];
-    }).toList();
+    // List<String> imageUrls = data['hotel_image'].map<String>((imageData) {
+    //   return baseUrl + imageData['image'];
+    // }).toList();
 
     return Container(
       padding: const EdgeInsets.all(5),

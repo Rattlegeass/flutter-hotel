@@ -147,7 +147,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Config.spaceSmall,
                     const BannerCard(),
-                    Config.spaceSmall,
+                    Config.spaceMedium,
                     const Text(
                       'Top Hotel',
                       style:

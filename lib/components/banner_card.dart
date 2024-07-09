@@ -41,10 +41,6 @@ class _BannerCardState extends State<BannerCard> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: Config.primaryColor,
-        borderRadius: BorderRadius.circular(10),
-      ),
       child: Material(
         color: Colors.transparent,
         child: Padding(
