@@ -20,7 +20,8 @@ class Config {
     return screenHeight;
   }
 
-  static const String api = "https://51ba-182-253-122-7.ngrok-free.app/";
+  static const String api =
+      "https://229e-2407-0-3002-5326-b832-4eaf-8b7c-139a.ngrok-free.app/";
 
   // define spacing
   static const spaceSmall = SizedBox(

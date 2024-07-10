@@ -92,18 +92,5 @@ class DioProvider {
       return error;
     }
   }
-
-Future<dynamic> review(dynamic hotel_id) async {
-  try{
-    Response response = await dio.get('/master/review/show_rating_flutter/$hotel_id');
-
-    if(response.data != ''){
-      return response.data['data'];
-    }
-  } catch(error){
-      return error;
-    }
-}
-
 }
 

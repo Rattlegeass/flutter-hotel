@@ -19,6 +19,7 @@ class _HotelDetailState extends State<HotelDetail> {
   String? reviewErrorMessage;
   late Map<String, dynamic> hotel;
   List<dynamic> review = [];
+  List<dynamic> roomType = [];
 
   @override
   void didChangeDependencies() {
@@ -29,6 +30,10 @@ class _HotelDetailState extends State<HotelDetail> {
 
       if (hotel.containsKey('review') && hotel['review'] is List) {
         review = hotel['review'];
+      }
+
+      if (hotel.containsKey("room_type") && hotel['room_type'] is List) {
+        roomType = hotel['room_type'];
       }
     }
   }
@@ -111,9 +116,10 @@ class _HotelDetailState extends State<HotelDetail> {
                   padding: const EdgeInsets.all(20),
                   child: Button(
                     width: double.infinity,
-                    title: 'Book',
+                    title: 'Choose Room',
                     onPressed: () {
-                      Navigator.of(context).pushNamed('booking_page');
+                      Navigator.of(context)
+                          .pushNamed('room_type_choose', arguments: roomType);
                     },
                     disable: false,
                   ),

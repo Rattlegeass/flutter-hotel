@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:tester/providers/dio_provider.dart';
-import 'package:tester/utils/config.dart';
+// import 'package:tester/utils/config.dart';
 
 class BannerCard extends StatefulWidget {
   const BannerCard({super.key});

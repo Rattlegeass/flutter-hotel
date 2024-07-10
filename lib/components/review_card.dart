@@ -41,7 +41,7 @@ class ReviewCard extends StatelessWidget {
                     ),
                     SizedBox(width: Config.widthSize * 0.20),
                     Column(
-                      children: [
+                      children: [ 
                         Text(
                           data['comment'],
                           style: const TextStyle(fontWeight: FontWeight.w500),
