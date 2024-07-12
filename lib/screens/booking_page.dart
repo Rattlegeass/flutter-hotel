@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:tester/components/button.dart';
-import 'package:tester/components/custom_appbar.dart';
-import 'package:tester/utils/config.dart';
+import 'package:tester/providers/dio_provider.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({super.key});
@@ -13,139 +10,193 @@ class BookingPage extends StatefulWidget {
 }
 
 class _BookingPageState extends State<BookingPage> {
-  CalendarFormat _format = CalendarFormat.month;
-  DateTime _focusDay = DateTime.now();
-  DateTime _currentDay = DateTime.now();
-  int? _currentIndex;
-  bool _isWeekend = false;
-  bool _dateSelected = false;
-  bool _timeSelected = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _paymentTypeController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _promoCodeController = TextEditingController();
+  final TextEditingController _startBookingDateController =
+      TextEditingController();
+  final TextEditingController _endBookingDateController =
+      TextEditingController();
+
+  late Map<String, dynamic> room;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final arguments = ModalRoute.of(context)?.settings.arguments;
+    if (arguments != null && arguments is Map<String, dynamic>) {
+      room = arguments;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    Config().init(context);
     return Scaffold(
-      appBar: const CustomAppbar(
-        appTitle: 'Hotel Booking',
-        icon: FaIcon(Icons.arrow_back_ios),
+      appBar: AppBar(
+        title: const Text('Hotel Booking'),
+        leading: IconButton(
+          icon: FaIcon(FontAwesomeIcons.arrowLeft),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
       ),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                _tableCalendar(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 25),
-                  child: Center(
-                    child: Text(
-                      'Select Booking Time',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              Text(
+                "${room['hotel']['name']}",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 25),
+              DropdownButtonFormField<String>(
+                value: '1',
+                decoration: const InputDecoration(
+                  labelText: 'Payment Type',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: '1',
+                    child: Text('ONLINE'),
                   ),
-                )
-              ],
-            ),
-          ),
-          _isWeekend
-              ? SliverToBoxAdapter(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 30),
-                    alignment: Alignment.center,
-                    child: const Text(
-                      'Weekend isn\'t available, please select another day',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black),
-                    ),
+                  DropdownMenuItem(
+                    value: '2',
+                    child: Text('HOTEL'),
                   ),
-                )
-              : SliverGrid(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    return InkWell(
-                      splashColor: Colors.transparent,
-                      onTap: () {
-                        setState(() {
-                          _currentIndex = index;
-                          _timeSelected = true;
-                        });
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                                color: _currentIndex == index
-                                    ? Colors.white
-                                    : Colors.black),
-                            borderRadius: BorderRadius.circular(15),
-                            color: _currentIndex == index
-                                ? Config.primaryColor
-                                : null),
-                        alignment: Alignment.center,
-                        child: Text(
-                          '${index + 9}:00 ${index + 9 > 11 ? "PM" : "AM"}',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color:
-                                  _currentIndex == index ? Colors.white : null),
-                        ),
-                      ),
+                ],
+                onChanged: (value) {
+                  _paymentTypeController.text = value!;
+                },
+              ),
+              const SizedBox(height: 15),
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 15),
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Name',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 15),
+              TextFormField(
+                controller: _phoneController,
+                decoration: const InputDecoration(
+                  labelText: 'Phone Number',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 15),
+              TextFormField(
+                controller: _promoCodeController,
+                decoration: const InputDecoration(
+                  labelText: 'Promo Code',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 15),
+              TextFormField(
+                controller: _startBookingDateController,
+                decoration: const InputDecoration(
+                  labelText: 'Start Booking Date',
+                  border: OutlineInputBorder(),
+                ),
+                readOnly: true,
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2101),
+                  );
+                  if (pickedDate != null) {
+                    _startBookingDateController.text = pickedDate.toString();
+                  }
+                },
+              ),
+              const SizedBox(height: 15),
+              TextFormField(
+                controller: _endBookingDateController,
+                decoration: const InputDecoration(
+                  labelText: 'End Booking Date',
+                  border: OutlineInputBorder(),
+                ),
+                readOnly: true,
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2101),
+                  );
+                  if (pickedDate != null) {
+                    _endBookingDateController.text = pickedDate.toString();
+                  }
+                },
+              ),
+              const SizedBox(height: 25),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final paymentType = _paymentTypeController.text;
+                    final email = _emailController.text;
+                    final name = _nameController.text;
+                    final phone = _phoneController.text;
+                    final bookingDate = _startBookingDateController.text;
+                    final endDate = _endBookingDateController.text;
+                    final promoCode = _promoCodeController.text;
+
+                    final hotelId = room['hotel']['id'];
+                    final roomTypeId = room['id'];
+                    final totalPrice = room['price'];
+                    final quantity = 1; // Asumsikan quantity 1 untuk contoh ini
+
+                    final booking = await DioProvider().booking(
+                      paymentType,
+                      totalPrice,
+                      email,
+                      name,
+                      phone,
+                      bookingDate,
+                      endDate,
+                      hotelId,
+                      roomTypeId,
+                      quantity,
+                      promotionId: promoCode.isNotEmpty ? promoCode : null,
                     );
-                  }, childCount: 8),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4, childAspectRatio: 1.5)),
-          SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 80),
-              child: Button(
-                  width: double.infinity,
-                  title: 'Reserve',
-                  onPressed: () {
-                    Navigator.of(context).pushNamed('success_booking');
-                  },
-                  disable: _timeSelected && _dateSelected ? false : true),
-            ),
-          )
-        ],
+
+                    if (booking != null) {
+                      Navigator.of(context).pushNamed('success_booking');
+                    } else {
+                      // Handle error
+                      print('Error during booking');
+                    }
+                  }
+                },
+                child: const Text('Reserve'),
+              ),
+            ],
+          ),
+        ),
       ),
-    );
-  }
-
-  Widget _tableCalendar() {
-    return TableCalendar(
-      focusedDay: _focusDay,
-      firstDay: DateTime.now(),
-      lastDay: DateTime(2024, 12, 31),
-      calendarFormat: _format,
-      currentDay: _currentDay,
-      rowHeight: 48,
-      calendarStyle: const CalendarStyle(
-          todayDecoration: BoxDecoration(
-              color: Config.primaryColor, shape: BoxShape.circle)),
-      availableCalendarFormats: const {CalendarFormat.month: 'Month'},
-      onFormatChanged: (format) {
-        setState(() {
-          _format = format;
-        });
-      },
-      onDaySelected: ((selectedDay, focusedDay) {
-        setState(() {
-          _currentDay = selectedDay;
-          _focusDay = focusedDay;
-          _dateSelected = true;
-
-          if (selectedDay.weekday == 6 || selectedDay.weekday == 7) {
-            _isWeekend = true;
-            _timeSelected = false;
-            _currentIndex = null;
-          } else {
-            _isWeekend = false;
-          }
-        });
-      }),
     );
   }
 }

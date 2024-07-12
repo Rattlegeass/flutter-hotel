@@ -13,6 +13,7 @@ class ReviewCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 20),
       height: 170,
+      width: Config.widthSize * 0.9,
       child: GestureDetector(
         child: Card(
           shadowColor: Colors.red,
@@ -41,7 +42,7 @@ class ReviewCard extends StatelessWidget {
                     ),
                     SizedBox(width: Config.widthSize * 0.20),
                     Column(
-                      children: [ 
+                      children: [
                         Text(
                           data['comment'],
                           style: const TextStyle(fontWeight: FontWeight.w500),

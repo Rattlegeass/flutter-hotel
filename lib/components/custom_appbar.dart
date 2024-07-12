@@ -23,7 +23,7 @@ class _CustomAppbarState extends State<CustomAppbar> {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: true,
-      backgroundColor: Colors.white, //background color is white in this app
+      backgroundColor: Colors.grey[300], //background color is white in this app
       elevation: 0,
       centerTitle: true,
       title: Text(
@@ -34,8 +34,8 @@ class _CustomAppbarState extends State<CustomAppbar> {
           ? Container(
               margin: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Config.primaryColor),
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: IconButton(
                 onPressed: () {
                   if (widget.route != null) {
@@ -47,7 +47,7 @@ class _CustomAppbarState extends State<CustomAppbar> {
                   }
                 },
                 icon: widget.icon!,
-                color: Colors.white,
+                color: Colors.black,
               ),
             )
           : null,

@@ -70,44 +70,47 @@ class _HotelDetailState extends State<HotelDetail> {
                         child: Column(
                           children: [
                             HotelInfo(hotel: hotel),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Card(
-                                  elevation: 5,
-                                  margin:
-                                      const EdgeInsets.symmetric(vertical: 25),
-                                  child: AboutHotel(hotel: hotel)),
-                            ),
+                            Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                decoration: const BoxDecoration(
+                                    border: Border(
+                                        bottom:
+                                            BorderSide(color: Colors.black87))),
+                                child: AboutHotel(hotel: hotel)),
                             Container(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 10),
-                              child: Card(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 20),
-                                elevation: 5,
-                                color: Colors.grey[200],
-                                child: Column(
-                                  children: [
-                                    Config.spaceSmall,
-                                    Text(
-                                      "Review from user in ${hotel['name']}",
-                                      style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    if (review.isNotEmpty)
-                                      Column(
-                                        children: List.generate(review.length,
-                                            (index) {
-                                          return ReviewCard(
-                                              data: review[index]);
-                                        }),
-                                      )
-                                    else
-                                      const Text("No Review Found"),
-                                  ],
-                                ),
+                              child: Column(
+                                children: [
+                                  Config.spaceSmall,
+                                  Text(
+                                    "Review from user in ${hotel['name']}",
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  if (review.isNotEmpty)
+                                    Container(
+                                      width: double.infinity,
+                                      height: Config.heightSize *
+                                          0.2, // Adjust the height as needed
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: review.length,
+                                        itemBuilder: (context, index) {
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 15),
+                                            child:
+                                                ReviewCard(data: review[index]),
+                                          );
+                                        },
+                                      ),
+                                    )
+                                  else
+                                    const Text("No Review Found"),
+                                ],
                               ),
                             ),
                           ],
@@ -147,6 +150,8 @@ class HotelInfo extends StatelessWidget {
     List<String> imageUrls = hotel['hotel_image'].map<String>((imageData) {
       return baseUrl + imageData['image'];
     }).toList();
+
+    List<dynamic> hotelFac = hotel['hotel_facilities'];
     return Container(
       width: double.infinity,
       child: Column(
@@ -169,31 +174,156 @@ class HotelInfo extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "${hotel['name']}",
-                  style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 5),
-                SizedBox(
-                  child: Text(
-                    "${hotel['street']}",
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                    softWrap: true,
+                Container(
+                  width: Config.screenWidth,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: const BoxDecoration(
+                      border: Border(top: BorderSide(color: Colors.black87))),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${hotel['name']}",
+                        style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 5),
+                      SizedBox(
+                        child: Text(
+                          "${hotel['street']}",
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      SizedBox(
+                        child: Text(
+                          "${hotel['city']['nm_city']}",
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w400),
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 5),
-                SizedBox(
-                  child: Text(
-                    "${hotel['city']['nm_city']}",
-                    style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.w400),
-                    textAlign: TextAlign.center,
-                    softWrap: true,
+                Container(
+                  width: Config.screenWidth,
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  margin: const EdgeInsets.only(bottom: 25),
+                  decoration: const BoxDecoration(
+                    border: Border.symmetric(
+                        horizontal: BorderSide(color: Colors.black87)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Hotel Facility",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(
+                        height: Config.heightSize *
+                            0.14, // Adjust the height as needed
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: hotelFac.length,
+                          itemBuilder: (context, index) {
+                            var facility = hotelFac[index];
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (facility['id'] == 1)
+                                    const Icon(
+                                      Icons.local_parking_outlined,
+                                      size: 35,
+                                    )
+                                  else if (facility['id'] == 2)
+                                    const Icon(
+                                      Icons.meeting_room_outlined,
+                                      size: 35,
+                                    )
+                                  else if (facility['id'] == 3)
+                                    const Icon(
+                                      Icons.fitness_center_outlined,
+                                      size: 35,
+                                    )
+                                  else if (facility['id'] == 4)
+                                    const Icon(
+                                      Icons.pool_outlined,
+                                      size: 35,
+                                    )
+                                  else if (facility['id'] == 5)
+                                    const Icon(
+                                      Icons.restaurant,
+                                      size: 35,
+                                    )
+                                  else if (facility['id'] == 6)
+                                    const Icon(
+                                      Icons.ac_unit_outlined,
+                                      size: 35,
+                                    )
+                                  else if (facility['id'] == 7)
+                                    const Icon(
+                                      Icons.tv,
+                                      size: 35,
+                                    )
+                                  else if (facility['id'] == 8)
+                                    const Icon(
+                                      Icons.wifi_outlined,
+                                      size: 35,
+                                    )
+                                  else if (facility['id'] == 9)
+                                    const Icon(
+                                      Icons.smoking_rooms_outlined,
+                                      size: 35,
+                                    )
+                                  else if (facility['id'] == 10)
+                                    const FaIcon(
+                                      FontAwesomeIcons.banSmoking,
+                                      size: 35,
+                                    )
+                                  else if (facility['id'] == 11)
+                                    const Icon(
+                                      Icons.local_cafe_outlined,
+                                      size: 35,
+                                    )
+                                  else if (facility['id'] == 12)
+                                    const Icon(
+                                      Icons.local_drink_outlined,
+                                      size: 35,
+                                    )
+                                  else if (facility['id'] == 15)
+                                    const Icon(
+                                      Icons.mosque_outlined,
+                                      size: 35,
+                                    )
+                                  else
+                                    const Icon(Icons.help_outline),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    facility['name'].replaceAll(' ', '\n'),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -214,12 +344,11 @@ class AboutHotel extends StatelessWidget {
   Widget build(BuildContext context) {
     Config().init(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       margin: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Config.spaceSmall,
           Text(
             "About ${hotel['name']}",
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18),

@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:tester/components/button.dart';
 import 'package:tester/components/carousel.dart';
+import 'package:tester/providers/dio_provider.dart';
 import 'package:tester/utils/config.dart';
 
 class RoomTypeCard extends StatelessWidget {
@@ -16,20 +17,20 @@ class RoomTypeCard extends StatelessWidget {
     final NumberFormat currency =
         NumberFormat.currency(locale: 'id-ID', symbol: "IDR ");
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 10),
       child: GestureDetector(
         child: Card(
           elevation: 4,
           color: Colors.white,
           child: Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 RoomTypeInfo(data: data),
                 Config.spaceSmall,
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Text(
                       currency.format(data['price']),
@@ -39,8 +40,10 @@ class RoomTypeCard extends StatelessWidget {
                     Button(
                         width: 150,
                         title: "Book",
-                        onPressed: () {
-                          Navigator.of(context).pushNamed('booking_page', arguments: data);
+                        onPressed: () async {
+                          final rooms = await DioProvider().roomType("${data['uuid']}");
+                          Navigator.of(context)
+                              .pushNamed('booking_page', arguments: rooms);
                         },
                         disable: false)
                   ],
@@ -77,24 +80,24 @@ class RoomTypeInfo extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(
-            height: 15,
+            height: 10,
           ),
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: SizedBox(
-              height: 150,
+              height: 140,
               width: double.infinity,
               child: Carousel(image: imageUrl),
             ),
           ),
-          Config.spaceSmall,
+          const SizedBox(height: 10),
           Text(
             data['name'],
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          Config.spaceSmall,
+          const SizedBox(height: 10),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5),
+            padding: const EdgeInsets.only(top: 5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -111,7 +114,7 @@ class RoomTypeInfo extends StatelessWidget {
                           color: Config.primaryColor,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 10),
+                                horizontal: 15, vertical: 5),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: <Widget>[
@@ -140,7 +143,6 @@ class RoomTypeInfo extends StatelessWidget {
           ),
           Config.spaceSmall,
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
             child: Card(
               color: Colors.grey[200],
               child: Column(
@@ -148,18 +150,36 @@ class RoomTypeInfo extends StatelessWidget {
                 children: [
                   SizedBox(
                     width: double.infinity,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 10),
-                      color: Colors.blueGrey[100],
-                      child: Text(data['name'],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          )),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10)),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        color: Colors.blueGrey[100],
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(data['name'],
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                )),
+                            IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).pushNamed('room_detail',
+                                      arguments: data);
+                                },
+                                icon: const Icon(
+                                    Icons.arrow_forward_ios_outlined))
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  Config.spaceSmall,
+                  const SizedBox(
+                    height: 15,
+                  ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Column(
@@ -192,18 +212,27 @@ class RoomTypeInfo extends StatelessWidget {
                             const SizedBox(
                               width: 10,
                             ),
-                            Expanded(
-                                child: Text(
-                              "Room Description : ${data['description']}",
-                              maxLines: null,
-                              overflow: TextOverflow.visible,
-                            )),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Room Description : ",
+                                ),
+                                Text(
+                                  "${data['description']}",
+                                  maxLines: null,
+                                  overflow: TextOverflow.visible,
+                                )
+                              ],
+                            )
                           ],
                         ),
+                        const SizedBox(
+                          height: 15,
+                        )
                       ],
                     ),
                   ),
-                  Config.spaceSmall
                 ],
               ),
             ),

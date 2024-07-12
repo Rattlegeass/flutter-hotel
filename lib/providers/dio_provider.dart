@@ -92,5 +92,66 @@ class DioProvider {
       return error;
     }
   }
-}
 
+  Future<dynamic> roomType(dynamic uuid) async {
+    try {
+      Response response = await dio.get(
+        '/master/hotel/room_type/$uuid',
+      );
+      if (response.data != null) {
+        return response.data['RoomType'];
+      } else {
+        return null; // Return null if the expected data is not a list
+      }
+    } catch (error) {
+      print("Error fetching room types: $error");
+      return null; // Return null on error
+    }
+  }
+
+  Future<dynamic> booking(
+      dynamic paymentType,
+      dynamic totalPrice,
+      dynamic email,
+      dynamic name,
+      dynamic phone,
+      dynamic bookingDate,
+      dynamic endDate,
+      dynamic hotelId,
+      dynamic roomTypeId,
+      dynamic quantity,
+      {String? userId,
+      String? promotionId}) async {
+    try {
+      Map<String, dynamic> data = {
+        'payment_type': paymentType,
+        'total_price': totalPrice,
+        'email': email,
+        'name': name,
+        'phone': phone,
+        'booking_date': bookingDate,
+        'end_date': endDate,
+        'hotel_id': hotelId,
+        'room_type_id': roomTypeId,
+        'quantity': quantity,
+      };
+
+      if (userId != null) {
+        data['user_id'] = userId;
+      }
+      if (userId != null) {
+        data['promotion_id'] = promotionId;
+      }
+
+      Response response = await dio.post('/master/booking_room', data: data);
+
+      if (response != null) {
+        return response.data['booking_room'];
+      } else{
+        return false;
+      }
+    } catch (error) {
+      return error;
+    }
+  }
+}
