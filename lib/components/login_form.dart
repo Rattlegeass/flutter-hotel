@@ -73,7 +73,6 @@ class _LoginFormState extends State<LoginForm> {
                       auth.loginSuccess();
                       MyApp.navigatorKey.currentState!.pushNamed('main');
                     }
-                    // // // Navigator.of(context).pushNamed('main');
                   },
                   disable: false);
             })

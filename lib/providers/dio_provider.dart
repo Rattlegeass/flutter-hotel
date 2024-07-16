@@ -120,8 +120,8 @@ class DioProvider {
       dynamic hotelId,
       dynamic roomTypeId,
       dynamic quantity,
-      {String? userId,
-      String? promotionId}) async {
+      dynamic userId,
+      {String? promotionId}) async {
     try {
       Map<String, dynamic> data = {
         'payment_type': paymentType,
@@ -134,12 +134,10 @@ class DioProvider {
         'hotel_id': hotelId,
         'room_type_id': roomTypeId,
         'quantity': quantity,
+        'user_id': userId
       };
 
-      if (userId != null) {
-        data['user_id'] = userId;
-      }
-      if (userId != null) {
+      if (promotionId != null) {
         data['promotion_id'] = promotionId;
       }
 
@@ -147,7 +145,30 @@ class DioProvider {
 
       if (response != null) {
         return response.data['booking_room'];
-      } else{
+      } else {
+        return false;
+      }
+    } catch (error) {
+      return error;
+    }
+  }
+
+  Future<dynamic> promo(dynamic code, dynamic hotelId, dynamic date,
+      dynamic dateEnd, dynamic userId) async {
+    try {
+      Map<String, dynamic> data = {
+        'code': code,
+        'hotel_id': hotelId,
+        'date_start': date,
+        'date_end': dateEnd,
+        'user_id': userId
+      };
+
+      Response response = await dio.post('/master/promotion/used', data: data);
+
+      if (response != null) {
+        return response.data['data'];
+      } else {
         return false;
       }
     } catch (error) {

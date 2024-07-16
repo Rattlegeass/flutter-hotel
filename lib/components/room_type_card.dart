@@ -41,7 +41,8 @@ class RoomTypeCard extends StatelessWidget {
                         width: 150,
                         title: "Book",
                         onPressed: () async {
-                          final rooms = await DioProvider().roomType("${data['uuid']}");
+                          final rooms =
+                              await DioProvider().roomType("${data['uuid']}");
                           Navigator.of(context)
                               .pushNamed('booking_page', arguments: rooms);
                         },
@@ -204,6 +205,7 @@ class RoomTypeInfo extends StatelessWidget {
                           ],
                         ),
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Icon(
                               FontAwesomeIcons.pencil,
@@ -212,19 +214,22 @@ class RoomTypeInfo extends StatelessWidget {
                             const SizedBox(
                               width: 10,
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Room Description : ",
-                                ),
-                                Text(
-                                  "${data['description']}",
-                                  maxLines: null,
-                                  overflow: TextOverflow.visible,
-                                )
-                              ],
-                            )
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Room Description : ",
+                                  ),
+                                  Text(
+                                    "${data['description']}",
+                                    maxLines: null,
+                                    overflow: TextOverflow.visible,
+                                    softWrap: true,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(

@@ -41,6 +41,7 @@ dependencies:
   flutter_rating_stars: ^1.1.0
   flutter_form_builder: ^7.4.1
   intl: ^0.17.0
+  fluttertoast: ^8.2.6
 
 
   # The following adds the Cupertino Icons font to your application.
