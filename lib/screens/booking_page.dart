@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';
 import 'package:tester/providers/dio_provider.dart';
-import 'package:tester/utils/config.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({super.key});
@@ -30,6 +29,7 @@ class _BookingPageState extends State<BookingPage> {
   int _quantity = 1;
   bool _isUsePromo = false;
   num _totalPrice = 0;
+  num _discountAmount = 0;
   DateTime? _startBookingDate;
   DateTime? _endBookingDate;
 
@@ -44,7 +44,7 @@ class _BookingPageState extends State<BookingPage> {
     final arguments = ModalRoute.of(context)?.settings.arguments;
     if (arguments != null && arguments is Map<String, dynamic>) {
       room = arguments;
-      _totalPrice = room['price'].toDouble();
+      _totalPrice = room['price'];
     }
   }
 
@@ -137,11 +137,26 @@ class _BookingPageState extends State<BookingPage> {
   final NumberFormat currency =
       NumberFormat.currency(locale: 'id-ID', symbol: "IDR ");
 
+  void _applyDiscount() {
+    if (_isUsePromo && promo.isNotEmpty) {
+      final promoCodeDiscount =
+          (num.parse(promo['discount'].toString()) / 100) * _totalPrice;
+
+      setState(() {
+        _discountAmount = promoCodeDiscount;
+        _totalPrice -= _discountAmount;
+      });
+    }
+  }
+
   void _updateTotalPrice() {
     if (_startBookingDate != null && _endBookingDate != null) {
       final timeDifference = _endBookingDate!.difference(_startBookingDate!);
-      final int daysDifference = timeDifference.inDays;
-      final int hoursDifference = timeDifference.inHours;
+      final int daysDifference = timeDifference.inDays + 1;
+
+      final int hoursDifference = (room['payment_rate'] == 'Hourly')
+          ? timeDifference.inHours // Gunakan perbedaan jam untuk tarif per jam
+          : 0; // Tidak ada perbedaan jam untuk tarif harian
 
       setState(() {
         if (room['payment_rate'] == 'Daily') {
@@ -150,10 +165,11 @@ class _BookingPageState extends State<BookingPage> {
           _totalPrice = room['price'] * hoursDifference * _quantity;
         }
 
-        if (_isUsePromo && promo.isNotEmpty) {
-          _totalPrice -= promo['discount'];
-        }
+        _applyDiscount(); // Terapkan diskon setelah menghitung total harga
       });
+    } else {
+      // Handle the case where either date is null (optional)
+      print("Please select both start and end booking dates.");
     }
   }
 
@@ -191,11 +207,11 @@ class _BookingPageState extends State<BookingPage> {
                 items: const [
                   DropdownMenuItem(
                     value: '1',
-                    child: Text('ONLINE'),
+                    child: Text('Online'),
                   ),
                   DropdownMenuItem(
                     value: '2',
-                    child: Text('HOTEL'),
+                    child: Text('Hotel'),
                   ),
                 ],
                 onChanged: (value) {
@@ -244,10 +260,16 @@ class _BookingPageState extends State<BookingPage> {
                     lastDate: DateTime(2101),
                   );
                   if (pickedDate != null) {
-                    _startBookingDate = pickedDate;
-                    _startBookingDateController.text = formatDate(pickedDate);
-                    _endBookingDateController.clear();
+                    setState(() {
+                      _startBookingDate = pickedDate;
+                      _startBookingDateController.text = formatDate(pickedDate);
+                      _endBookingDateController.clear();
+                      _updateTotalPrice();
+                    });
                   }
+                },
+                onChanged: (value) {
+                  _updateTotalPrice();
                 },
               ),
               const SizedBox(height: 15),
@@ -274,9 +296,11 @@ class _BookingPageState extends State<BookingPage> {
                     lastDate: DateTime(2101),
                   );
                   if (pickedDate != null) {
-                    _endBookingDate = pickedDate;
-                    _endBookingDateController.text = formatDate(pickedDate);
-                    _updateTotalPrice();
+                    setState(() {
+                      _endBookingDate = pickedDate;
+                      _endBookingDateController.text = formatDate(pickedDate);
+                      _updateTotalPrice();
+                    });
                   }
                 },
               ),
@@ -292,6 +316,12 @@ class _BookingPageState extends State<BookingPage> {
                       if (_isUsePromo) {
                         await _showPromoCodeDialog();
                         _updateTotalPrice();
+                      } else {
+                        setState(() {
+                          promo.clear();
+                          _promoCodeController.clear();
+                          _updateTotalPrice();
+                        });
                       }
                     },
                   ),
@@ -332,7 +362,7 @@ class _BookingPageState extends State<BookingPage> {
                           width: 20,
                         ),
                         Text(
-                          "${_quantity}",
+                          "$_quantity",
                           style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w400),
                         ),
@@ -377,8 +407,7 @@ class _BookingPageState extends State<BookingPage> {
                     final roomTypeId = room['id'];
                     final userId = user['user']['id'];
                     final num totalPrice = _totalPrice;
-                    const int quantity =
-                        1; // Asumsikan quantity 1 untuk contoh ini
+                    final int quantity = _quantity;
 
                     final booking = await DioProvider().booking(
                       paymentType,
@@ -392,13 +421,28 @@ class _BookingPageState extends State<BookingPage> {
                       roomTypeId,
                       quantity,
                       userId,
-                      promotionId: promoCode.isNotEmpty ? promoCode : null,
                     );
 
                     if (booking != null) {
-                      Navigator.of(context).pushNamed('success_booking');
+                      final statusCode = booking['statusCode'];
+                      final data = booking['data'];
+
+                      if (statusCode == 200 && data['success']) {
+                        final getBook = await DioProvider()
+                            .getBooking("${data['booking_room']['uuid']}");
+
+                        // Navigasi ke halaman sukses
+                        Navigator.of(context).pushNamed('success_booking',
+                            arguments: getBook['booking_room']);
+                        print(getBook);
+                      } else if (statusCode == 422) {
+                        // Tampilkan pesan error validasi
+                        print('Validation error: ${data['message']}');
+                      } else {
+                        // Tampilkan pesan error lainnya
+                        print('Error: ${data['message']}');
+                      }
                     } else {
-                      // Handle error
                       print('Error during booking');
                     }
                   }
@@ -456,7 +500,9 @@ class _BookingPageState extends State<BookingPage> {
                 if (response != null) {
                   setState(() {
                     promo = response;
+                    print(promo);
                   });
+                  _updateTotalPrice();
                   Navigator.of(context).pop();
                 } else {
                   _showErrorAnimation();

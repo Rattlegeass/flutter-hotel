@@ -141,15 +141,21 @@ class DioProvider {
         data['promotion_id'] = promotionId;
       }
 
-      Response response = await dio.post('/master/booking_room', data: data);
+      Response response =
+          await dio.post('/master/booking_room/store', data: data);
 
-      if (response != null) {
-        return response.data['booking_room'];
+      return {'statusCode': response.statusCode, 'data': response.data};
+    } on DioError catch (error) {
+      if (error.response != null) {
+        return {
+          'statusCode': error.response?.statusCode,
+          'data': error.response?.data,
+        };
       } else {
-        return false;
+        print('DioError: $error');
+        return null;
       }
-    } catch (error) {
-      return error;
+      ;
     }
   }
 
@@ -170,6 +176,18 @@ class DioProvider {
         return response.data['data'];
       } else {
         return false;
+      }
+    } catch (error) {
+      return error;
+    }
+  }
+
+  Future<dynamic> getBooking(dynamic uuid) async {
+    try {
+      Response response = await dio.get('/master/booking_room/$uuid');
+
+      if (response.data != null) {
+        return response.data;
       }
     } catch (error) {
       return error;
