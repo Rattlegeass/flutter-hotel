@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:tester/main_layout.dart';
 import 'package:tester/models/auth_model.dart';
@@ -38,6 +39,8 @@ class MyApp extends StatelessWidget {
               floatingLabelStyle: TextStyle(color: Config.primaryColor),
               prefixIconColor: Colors.black38,
             ),
+            textTheme:
+                GoogleFonts.libreFranklinTextTheme(Theme.of(context).textTheme),
             scaffoldBackgroundColor: Colors.white,
             bottomNavigationBarTheme: BottomNavigationBarThemeData(
                 backgroundColor: Config.primaryColor,

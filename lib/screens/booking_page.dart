@@ -443,6 +443,7 @@ class _BookingPageState extends State<BookingPage> {
                         print('Error: ${data['message']}');
                       }
                     } else {
+                      const CircularProgressIndicator();
                       print('Error during booking');
                     }
                   }
