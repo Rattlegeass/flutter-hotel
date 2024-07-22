@@ -187,270 +187,285 @@ class _BookingPageState extends State<BookingPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              Text(
-                "${room['hotel']['name']}",
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                textAlign: TextAlign.center,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            inputDecorationTheme: const InputDecorationTheme(
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.black),
               ),
-              const SizedBox(height: 25),
-              DropdownButtonFormField<String>(
-                value: '1',
-                decoration: const InputDecoration(
-                  labelText: 'Payment Type',
-                  border: OutlineInputBorder(),
+              labelStyle: TextStyle(
+                  color: Colors.grey), // Color of the label when not focused
+              focusColor: Colors.black, // Color of the label when focused
+            ),
+          ),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                Text(
+                  "${room['hotel']['name']}",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 20),
+                  textAlign: TextAlign.center,
                 ),
-                items: const [
-                  DropdownMenuItem(
-                    value: '1',
-                    child: Text('Online'),
+                const SizedBox(height: 25),
+                DropdownButtonFormField<String>(
+                  value: '1',
+                  decoration: const InputDecoration(
+                    labelText: 'Payment Type',
+                    border: OutlineInputBorder(),
                   ),
-                  DropdownMenuItem(
-                    value: '2',
-                    child: Text('Hotel'),
-                  ),
-                ],
-                onChanged: (value) {
-                  _paymentTypeController.text = value!;
-                },
-              ),
-              const SizedBox(height: 15),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 15),
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 15),
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 15),
-              TextFormField(
-                controller: _startBookingDateController,
-                decoration: const InputDecoration(
-                  labelText: 'Start Booking Date',
-                  border: OutlineInputBorder(),
-                ),
-                readOnly: true,
-                onTap: () async {
-                  DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2101),
-                  );
-                  if (pickedDate != null) {
-                    setState(() {
-                      _startBookingDate = pickedDate;
-                      _startBookingDateController.text = formatDate(pickedDate);
-                      _endBookingDateController.clear();
-                      _updateTotalPrice();
-                    });
-                  }
-                },
-                onChanged: (value) {
-                  _updateTotalPrice();
-                },
-              ),
-              const SizedBox(height: 15),
-              TextFormField(
-                controller: _endBookingDateController,
-                decoration: const InputDecoration(
-                  labelText: 'End Booking Date',
-                  border: OutlineInputBorder(),
-                ),
-                readOnly: true,
-                onTap: () async {
-                  if (_startBookingDate == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text(
-                            "Please select the start booking date first")));
-                    return;
-                  }
-
-                  DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate:
-                        _startBookingDate!.add(const Duration(days: 1)),
-                    firstDate: _startBookingDate!.add(const Duration(days: 1)),
-                    lastDate: DateTime(2101),
-                  );
-                  if (pickedDate != null) {
-                    setState(() {
-                      _endBookingDate = pickedDate;
-                      _endBookingDateController.text = formatDate(pickedDate);
-                      _updateTotalPrice();
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 15),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _isUsePromo,
-                    onChanged: (value) async {
-                      setState(() {
-                        _isUsePromo = value!;
-                      });
-                      if (_isUsePromo) {
-                        await _showPromoCodeDialog();
-                        _updateTotalPrice();
-                      } else {
-                        setState(() {
-                          promo.clear();
-                          _promoCodeController.clear();
-                          _updateTotalPrice();
-                        });
-                      }
-                    },
-                  ),
-                  const Text('Use Promo Code'),
-                ],
-              ),
-              const SizedBox(height: 15),
-              if (_endBookingDateController.text != '')
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      currency.format(_totalPrice),
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
+                  items: const [
+                    DropdownMenuItem(
+                      value: '1',
+                      child: Text('Online'),
                     ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          height: 40,
-                          width: 50,
-                          child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                  shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(5)))),
-                              onPressed: () {
-                                setState(() {
-                                  decrement();
-                                });
-                              },
-                              child: const Text(
-                                "-",
-                                style: TextStyle(color: Colors.black),
-                              )),
-                        ),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        Text(
-                          "$_quantity",
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w400),
-                        ),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        SizedBox(
-                          height: 40,
-                          width: 50,
-                          child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                  shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(5)))),
-                              onPressed: () {
-                                setState(() {
-                                  increment();
-                                });
-                              },
-                              child: const Text(
-                                "+",
-                                style: TextStyle(color: Colors.black),
-                              )),
-                        ),
-                      ],
-                    )
+                    DropdownMenuItem(
+                      value: '2',
+                      child: Text('Hotel'),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    _paymentTypeController.text = value!;
+                  },
+                ),
+                const SizedBox(height: 15),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 15),
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                TextFormField(
+                  controller: _phoneController,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone Number',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 15),
+                TextFormField(
+                  controller: _startBookingDateController,
+                  decoration: const InputDecoration(
+                    labelText: 'Start Booking Date',
+                    border: OutlineInputBorder(),
+                  ),
+                  readOnly: true,
+                  onTap: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2101),
+                    );
+                    if (pickedDate != null) {
+                      setState(() {
+                        _startBookingDate = pickedDate;
+                        _startBookingDateController.text =
+                            formatDate(pickedDate);
+                        _endBookingDateController.clear();
+                        _updateTotalPrice();
+                      });
+                    }
+                  },
+                  onChanged: (value) {
+                    _updateTotalPrice();
+                  },
+                ),
+                const SizedBox(height: 15),
+                TextFormField(
+                  controller: _endBookingDateController,
+                  decoration: const InputDecoration(
+                    labelText: 'End Booking Date',
+                    border: OutlineInputBorder(),
+                  ),
+                  readOnly: true,
+                  onTap: () async {
+                    if (_startBookingDate == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                              "Please select the start booking date first")));
+                      return;
+                    }
+
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate:
+                          _startBookingDate!.add(const Duration(days: 1)),
+                      firstDate:
+                          _startBookingDate!.add(const Duration(days: 1)),
+                      lastDate: DateTime(2101),
+                    );
+                    if (pickedDate != null) {
+                      setState(() {
+                        _endBookingDate = pickedDate;
+                        _endBookingDateController.text = formatDate(pickedDate);
+                        _updateTotalPrice();
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _isUsePromo,
+                      onChanged: (value) async {
+                        setState(() {
+                          _isUsePromo = value!;
+                        });
+                        if (_isUsePromo) {
+                          await _showPromoCodeDialog();
+                          _updateTotalPrice();
+                        } else {
+                          setState(() {
+                            promo.clear();
+                            _promoCodeController.clear();
+                            _updateTotalPrice();
+                          });
+                        }
+                      },
+                    ),
+                    const Text('Use Promo Code'),
                   ],
                 ),
-              const SizedBox(height: 15),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    final paymentType = _paymentTypeController.text;
-                    final email = _emailController.text;
-                    final name = _nameController.text;
-                    final phone = _phoneController.text;
-                    final bookingDate = _startBookingDateController.text;
-                    final endDate = _endBookingDateController.text;
-                    final promoCode = _promoCodeController.text;
+                const SizedBox(height: 15),
+                if (_endBookingDateController.text != '')
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        currency.format(_totalPrice),
+                        style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        children: [
+                          SizedBox(
+                            height: 40,
+                            width: 50,
+                            child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                    shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(5)))),
+                                onPressed: () {
+                                  setState(() {
+                                    decrement();
+                                  });
+                                },
+                                child: const Text(
+                                  "-",
+                                  style: TextStyle(color: Colors.black),
+                                )),
+                          ),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          Text(
+                            "$_quantity",
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w400),
+                          ),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          SizedBox(
+                            height: 40,
+                            width: 50,
+                            child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                    shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(5)))),
+                                onPressed: () {
+                                  setState(() {
+                                    increment();
+                                  });
+                                },
+                                child: const Text(
+                                  "+",
+                                  style: TextStyle(color: Colors.black),
+                                )),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                const SizedBox(height: 15),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      final paymentType = _paymentTypeController.text;
+                      final email = _emailController.text;
+                      final name = _nameController.text;
+                      final phone = _phoneController.text;
+                      final bookingDate = _startBookingDateController.text;
+                      final endDate = _endBookingDateController.text;
+                      final promoCode = _promoCodeController.text;
 
-                    final hotelId = room['hotel']['id'];
-                    final roomTypeId = room['id'];
-                    final userId = user['user']['id'];
-                    final num totalPrice = _totalPrice;
-                    final int quantity = _quantity;
+                      final hotelId = room['hotel']['id'];
+                      final roomTypeId = room['id'];
+                      final userId = user['user']['id'];
+                      final num totalPrice = _totalPrice;
+                      final int quantity = _quantity;
 
-                    final booking = await DioProvider().booking(
-                      paymentType,
-                      totalPrice,
-                      email,
-                      name,
-                      phone,
-                      bookingDate,
-                      endDate,
-                      hotelId,
-                      roomTypeId,
-                      quantity,
-                      userId,
-                    );
+                      final booking = await DioProvider().booking(
+                          paymentType,
+                          totalPrice,
+                          email,
+                          name,
+                          phone,
+                          bookingDate,
+                          endDate,
+                          hotelId,
+                          roomTypeId,
+                          quantity,
+                          userId,
+                          promotionId:
+                              promo.isNotEmpty ? "${promo['id']}" : null);
 
-                    if (booking != null) {
-                      final statusCode = booking['statusCode'];
-                      final data = booking['data'];
+                      if (booking != null) {
+                        final statusCode = booking['statusCode'];
+                        final data = booking['data'];
 
-                      if (statusCode == 200 && data['success']) {
-                        final getBook = await DioProvider()
-                            .getBooking("${data['booking_room']['uuid']}");
+                        if (statusCode == 200 && data['success']) {
+                          final getBook = await DioProvider()
+                              .getBooking("${data['booking_room']['uuid']}");
 
-                        // Navigasi ke halaman sukses
-                        Navigator.of(context).pushNamed('success_booking',
-                            arguments: getBook['booking_room']);
-                        print(getBook);
-                      } else if (statusCode == 422) {
-                        // Tampilkan pesan error validasi
-                        print('Validation error: ${data['message']}');
+                          // Navigasi ke halaman sukses
+                          Navigator.of(context).pushNamed('success_booking',
+                              arguments: getBook['booking_room']);
+                          print(getBook);
+                        } else if (statusCode == 422) {
+                          // Tampilkan pesan error validasi
+                          print('Validation error: ${data['message']}');
+                        } else {
+                          // Tampilkan pesan error lainnya
+                          print('Error: ${data['message']}');
+                        }
                       } else {
-                        // Tampilkan pesan error lainnya
-                        print('Error: ${data['message']}');
+                        const CircularProgressIndicator();
+                        print('Error during booking');
                       }
-                    } else {
-                      const CircularProgressIndicator();
-                      print('Error during booking');
                     }
-                  }
-                },
-                child: const Text('Reserve'),
-              ),
-            ],
+                  },
+                  child: const Text('Reserve'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

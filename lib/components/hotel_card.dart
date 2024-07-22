@@ -21,7 +21,7 @@ class HotelCard extends StatelessWidget {
       padding: const EdgeInsets.all(5),
       height: 150,
       child: GestureDetector(
-        child: Card(
+        child: Card(  
           elevation: 6,
           color: Colors.white,
           child: Row(

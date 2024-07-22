@@ -110,27 +110,127 @@ class RoomTypeInfo extends StatelessWidget {
                       itemCount: roomFacility.length,
                       itemBuilder: (context, index) {
                         var facility = roomFacility[index];
-                        return Card(
+                        return Container(
                           margin: const EdgeInsets.only(right: 20),
-                          color: Config.primaryColor,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 5),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: <Widget>[
-                                // FaIcon(
-                                //   facility[
-                                //       'icon'], // Ensure your data has 'icon'
-                                //   color: Colors.white,
-                                // ),
+                                if (facility['id'] == 1)
+                                  const Icon(
+                                    Icons.wifi,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 2)
+                                  const Icon(
+                                    Icons.ac_unit,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 4)
+                                  const Icon(
+                                    Icons.cable_outlined,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 5)
+                                  const Icon(
+                                    Icons.tv_outlined,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 6)
+                                  const FaIcon(
+                                    FontAwesomeIcons.box,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 7)
+                                  const Icon(
+                                    Icons.phone_outlined,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 9)
+                                  const FaIcon(
+                                    FontAwesomeIcons.bell,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 10)
+                                  const Icon(
+                                    Icons.shop,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 12)
+                                  const Icon(
+                                    Icons.local_laundry_service_outlined,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 14)
+                                  const Icon(
+                                    Icons.bathtub_outlined,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 17)
+                                  const Icon(
+                                    Icons.desk_outlined,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 18)
+                                  const Icon(
+                                    Icons.dry_cleaning_outlined,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 20)
+                                  const Icon(
+                                    Icons.coffee_outlined,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 21)
+                                  const Icon(
+                                    Icons.hot_tub_outlined,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 22)
+                                  const Icon(
+                                    Icons.shower_outlined,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 23)
+                                  const Icon(
+                                    FontAwesomeIcons.shirt,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 24)
+                                  const FaIcon(
+                                    FontAwesomeIcons.bottleWater,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 25)
+                                  const Icon(
+                                    Icons.local_drink_outlined,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 26)
+                                  const Icon(
+                                    Icons.smoking_rooms_outlined,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 27)
+                                  const FaIcon(
+                                    FontAwesomeIcons.wind,
+                                    color: Config.primaryColor,
+                                  )
+                                else if (facility['id'] == 30)
+                                  const Icon(
+                                    Icons.hot_tub_outlined,
+                                    color: Config.primaryColor,
+                                  ),
+                                const SizedBox(width: 15),
                                 Text(
                                   facility[
                                       'name'], // Ensure your data has 'name'
                                   style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white),
+                                      color: Colors.black),
                                 ),
                               ],
                             ),

@@ -193,4 +193,20 @@ class DioProvider {
       return error;
     }
   }
+
+  Future<dynamic> getHistory({int page = 1, int per = 10, String search = ''}) async {
+    try {
+      Response response = await dio.post('/master/booking/history', queryParameters: {
+        'page': page,
+        'per': per,
+        'search': search
+      });
+
+      if (response.data != null) {
+        return response.data;
+      }
+    } catch (error) {
+      return error;
+    }
+  }
 }

@@ -21,62 +21,76 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-        key: _formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            TextFormField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              cursorColor: Config.primaryColor,
-              decoration: const InputDecoration(
-                  hintText: 'Email Address',
-                  labelText: 'Email',
-                  alignLabelWithHint: true,
-                  prefixIcon: Icon(Icons.email_outlined),
-                  prefixIconColor: Config.primaryColor),
-            ),
-            Config.spaceSmall,
-            TextFormField(
-              controller: _passController,
-              keyboardType: TextInputType.visiblePassword,
-              obscureText: obsecurePass,
-              cursorColor: Config.primaryColor,
-              decoration: InputDecoration(
-                  hintText: 'Password',
-                  labelText: 'Password',
-                  alignLabelWithHint: true,
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  prefixIconColor: Config.primaryColor,
-                  suffixIcon: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          obsecurePass = !obsecurePass;
-                        });
-                      },
-                      icon: obsecurePass
-                          ? const Icon(Icons.visibility_off_outlined,
-                              color: Colors.black38)
-                          : const Icon(Icons.visibility_outlined,
-                              color: Config.primaryColor))),
-            ),
-            Config.spaceSmall,
-            Consumer<AuthModel>(builder: (context, auth, child) {
-              return Button(
-                  width: double.infinity,
-                  title: 'Sign In',
-                  onPressed: () async {
-                    final token = await DioProvider()
-                        .getToken(_emailController.text, _passController.text);
-                    if (token) {
-                      auth.loginSuccess();
-                      MyApp.navigatorKey.currentState!.pushNamed('main');
-                    }
-                  },
-                  disable: false);
-            })
-          ],
-        ));
+    return Theme(
+      data: Theme.of(context).copyWith(
+        inputDecorationTheme: const InputDecorationTheme(
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black),
+          ),
+          labelStyle: TextStyle(
+              color: Colors.grey), // Color of the label when not focused
+          focusColor: Colors.black, // Color of the label when focused
+        ),
+      ),
+      child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              TextFormField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                cursorColor: Colors.black,
+                decoration: const InputDecoration(
+                    hintText: 'Email Address',
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black)),
+                    labelText: 'Email',
+                    alignLabelWithHint: true,
+                    prefixIcon: Icon(Icons.email_outlined),
+                    prefixIconColor: Colors.black),
+              ),
+              Config.spaceSmall,
+              TextFormField(
+                controller: _passController,
+                keyboardType: TextInputType.visiblePassword,
+                obscureText: obsecurePass,
+                cursorColor: Colors.black,
+                decoration: InputDecoration(
+                    hintText: 'Password',
+                    labelText: 'Password',
+                    alignLabelWithHint: true,
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    prefixIconColor: Colors.black,
+                    suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            obsecurePass = !obsecurePass;
+                          });
+                        },
+                        icon: obsecurePass
+                            ? const Icon(Icons.visibility_off_outlined,
+                                color: Colors.black38)
+                            : const Icon(Icons.visibility_outlined,
+                                color: Config.primaryColor))),
+              ),
+              Config.spaceSmall,
+              Consumer<AuthModel>(builder: (context, auth, child) {
+                return Button(
+                    width: double.infinity,
+                    title: 'Sign In',
+                    onPressed: () async {
+                      final token = await DioProvider().getToken(
+                          _emailController.text, _passController.text);
+                      if (token) {
+                        auth.loginSuccess();
+                        MyApp.navigatorKey.currentState!.pushNamed('main');
+                      }
+                    },
+                    disable: false);
+              })
+            ],
+          )),
+    );
   }
 }

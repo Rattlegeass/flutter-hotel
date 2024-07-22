@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tester/components/banner_card.dart';
 import 'package:tester/components/hotel_card.dart';
@@ -19,12 +18,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Map<String, dynamic> user = {};
   List<dynamic> hotel = [];
-  List<Map<String, dynamic>> hotelCat = [
-    {"icon": FontAwesomeIcons.hotel, "category": "City Hotel"},
-    {"icon": FontAwesomeIcons.hotel, "category": "Resifential Hotel"},
-    {"icon": FontAwesomeIcons.hotel, "category": "Resort Hotel"},
-    {"icon": FontAwesomeIcons.hotel, "category": "Motel"},
-  ];
 
   Future<void> getData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -100,46 +93,6 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                     Config.spaceMedium,
-                    const Text(
-                      'Category',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Config.spaceSmall,
-                    SizedBox(
-                        height: Config.heightSize * 0.05,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children:
-                              List<Widget>.generate(hotelCat.length, (index) {
-                            return Card(
-                              margin: const EdgeInsets.only(right: 20),
-                              color: Config.primaryColor,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 10),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: <Widget>[
-                                    FaIcon(
-                                      hotelCat[index]['icon'],
-                                      color: Colors.white,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      hotelCat[index]['category'],
-                                      style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }),
-                        )),
-                    Config.spaceSmall,
                     const Text(
                       'Promotion Today',
                       style:
